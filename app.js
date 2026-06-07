@@ -202,8 +202,10 @@ function renderResults({ score, matched, missing }) {
 // =============================================
 //  PDF UPLOAD & PARSING
 // =============================================
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
 
 const uploadZone     = document.getElementById('uploadZone');
 const pdfInput       = document.getElementById('pdfInput');
@@ -250,6 +252,7 @@ async function processPDF(file) {
   uploadZone.classList.add('loaded');
 
   try {
+    if (typeof pdfjsLib === 'undefined') throw new Error('PDF library not loaded');
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     let fullText = '';
