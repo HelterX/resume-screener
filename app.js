@@ -199,21 +199,23 @@ function renderResults({ score, matched, missing }) {
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-const uploadZone    = document.getElementById('uploadZone');
-const pdfInput      = document.getElementById('pdfInput');
-const uploadContent = document.getElementById('uploadContent');
-const uploadLoaded  = document.getElementById('uploadLoaded');
+const uploadZone     = document.getElementById('uploadZone');
+const pdfInput       = document.getElementById('pdfInput');
 const uploadFilename = document.getElementById('uploadFilename');
-const uploadRemove  = document.getElementById('uploadRemove');
+const uploadRemove   = document.getElementById('uploadRemove');
+const uploadTrigger  = document.getElementById('uploadTrigger');
 const resumeTextarea = document.getElementById('resume');
 
-// Click anywhere on zone to open file picker
+// Click zone (idle state) or browse link to open picker
 uploadZone.addEventListener('click', (e) => {
-  if (e.target === uploadRemove || uploadZone.classList.contains('loaded')) return;
+  if (uploadZone.classList.contains('loaded')) return;
   pdfInput.click();
 });
 
-uploadContent.querySelector('.upload-link').addEventListener('click', () => pdfInput.click());
+uploadTrigger.addEventListener('click', (e) => {
+  e.stopPropagation();
+  pdfInput.click();
+});
 
 // Drag & drop
 uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });

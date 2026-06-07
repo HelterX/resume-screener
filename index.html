@@ -43,22 +43,22 @@
           <span class="label__num">02</span>
           Your Resume
         </label>
+        <textarea id="resume" class="textarea" placeholder="Paste your resume text here..."></textarea>
+        <div class="upload-divider"><span>or upload PDF</span></div>
         <!-- PDF Upload -->
+        <input type="file" id="pdfInput" accept=".pdf" hidden />
         <div class="upload-zone" id="uploadZone">
-          <input type="file" id="pdfInput" accept=".pdf" hidden />
-          <div class="upload-zone__content" id="uploadContent">
+          <div class="upload-zone__idle" id="uploadIdle">
             <span class="upload-icon">📄</span>
-            <p class="upload-text">Drop your PDF here or <span class="upload-link">browse</span></p>
-            <p class="upload-hint">Supports .pdf files</p>
+            <p class="upload-text">Drop your PDF here or <span class="upload-link" id="uploadTrigger">browse</span></p>
+            <p class="upload-hint">Supports .pdf files only</p>
           </div>
-          <div class="upload-zone__loaded" id="uploadLoaded">
+          <div class="upload-zone__done" id="uploadDone">
             <span class="upload-icon">✅</span>
-            <p class="upload-filename" id="uploadFilename"></p>
+            <p class="upload-filename" id="uploadFilename">File loaded</p>
             <button class="upload-remove" id="uploadRemove">✕ Remove</button>
           </div>
         </div>
-        <div class="upload-divider"><span>or paste manually</span></div>
-        <textarea id="resume" class="textarea" placeholder="Paste your resume text here..."></textarea>
       </div>
 
     </div>
