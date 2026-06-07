@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resume Screener — JericDev</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav__logo">JD<span>.</span></div>
+    <a href="https://jericdev-portfolio.pages.dev" class="nav__back">← Back to Portfolio</a>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <p class="eyebrow">AI Tool</p>
+    <h1>Resume <em>Screener</em></h1>
+    <p class="hero__sub">Paste a job description and your resume — get an instant match score, keyword analysis, and tips to improve.</p>
+  </header>
+
+  <!-- MAIN TOOL -->
+  <main class="tool container">
+
+    <div class="inputs">
+
+      <div class="input-group">
+        <label class="input-label">
+          <span class="label__num">01</span>
+          Job Description
+        </label>
+        <textarea id="jobDesc" class="textarea" placeholder="Paste the full job description here..."></textarea>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">
+          <span class="label__num">02</span>
+          Your Resume
+        </label>
+        <textarea id="resume" class="textarea" placeholder="Paste your resume text here..."></textarea>
+      </div>
+
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn--primary" id="screenBtn">Screen My Resume ✦</button>
+      <button class="btn btn--ghost" id="resetBtn">Reset</button>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results" id="results">
+
+      <!-- Score -->
+      <div class="score-card">
+        <div class="score-ring">
+          <svg viewBox="0 0 120 120" class="score-svg">
+            <circle cx="60" cy="60" r="52" class="score-track"/>
+            <circle cx="60" cy="60" r="52" class="score-fill" id="scoreCircle"/>
+          </svg>
+          <div class="score-center">
+            <span class="score-num" id="scoreNum">0</span>
+            <span class="score-pct">%</span>
+          </div>
+        </div>
+        <div class="score-info">
+          <h2 class="score-title" id="scoreTitle">Analyzing...</h2>
+          <p class="score-desc" id="scoreDesc"></p>
+          <div class="score-badge" id="scoreBadge"></div>
+        </div>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="breakdown-grid">
+
+        <div class="breakdown-card breakdown-card--matched">
+          <h3>✅ Matched Keywords</h3>
+          <p class="breakdown-count" id="matchedCount">0 found</p>
+          <ul class="keyword-list" id="matchedList"></ul>
+        </div>
+
+        <div class="breakdown-card breakdown-card--missing">
+          <h3>❌ Missing Keywords</h3>
+          <p class="breakdown-count" id="missingCount">0 missing</p>
+          <ul class="keyword-list" id="missingList"></ul>
+        </div>
+
+      </div>
+
+      <!-- Tips -->
+      <div class="tips-card">
+        <h3>💡 How to Improve Your Match</h3>
+        <ul class="tips-list" id="tipsList"></ul>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>Built by <strong>Jeric Tabboga</strong> · <a href="https://jericdev-portfolio.pages.dev">jericdev-portfolio.pages.dev</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
