@@ -189,6 +189,13 @@ function renderResults({ score, matched, missing }) {
   resultsEl.classList.add('visible');
   resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
+  // Score card glow based on result
+  const scoreCard = document.querySelector('.score-card');
+  scoreCard.classList.remove('glow-green', 'glow-gold', 'glow-red');
+  if (score >= 75)      scoreCard.classList.add('glow-green');
+  else if (score >= 50) scoreCard.classList.add('glow-gold');
+  else                  scoreCard.classList.add('glow-red');
+
   // Animate score after short delay
   setTimeout(() => animateScore(score), 200);
 }
@@ -300,5 +307,10 @@ resetBtn.addEventListener('click', () => {
   document.getElementById('results').classList.remove('visible');
   document.getElementById('scoreNum').textContent = '0';
   document.getElementById('scoreCircle').style.strokeDashoffset = '326.7';
+  document.querySelector('.score-card').classList.remove('glow-green', 'glow-gold', 'glow-red');
+  // Reset upload zone
+  pdfInput.value = '';
+  uploadZone.classList.remove('loaded');
+  uploadFilename.textContent = '';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
