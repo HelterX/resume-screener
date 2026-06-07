@@ -194,6 +194,74 @@ function renderResults({ score, matched, missing }) {
 }
 
 // =============================================
+//  PDF UPLOAD & PARSING
+// =============================================
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const uploadZone    = document.getElementById('uploadZone');
+const pdfInput      = document.getElementById('pdfInput');
+const uploadContent = document.getElementById('uploadContent');
+const uploadLoaded  = document.getElementById('uploadLoaded');
+const uploadFilename = document.getElementById('uploadFilename');
+const uploadRemove  = document.getElementById('uploadRemove');
+const resumeTextarea = document.getElementById('resume');
+
+// Click anywhere on zone to open file picker
+uploadZone.addEventListener('click', (e) => {
+  if (e.target === uploadRemove || uploadZone.classList.contains('loaded')) return;
+  pdfInput.click();
+});
+
+uploadContent.querySelector('.upload-link').addEventListener('click', () => pdfInput.click());
+
+// Drag & drop
+uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') processPDF(file);
+});
+
+pdfInput.addEventListener('change', () => {
+  if (pdfInput.files[0]) processPDF(pdfInput.files[0]);
+});
+
+uploadRemove.addEventListener('click', (e) => {
+  e.stopPropagation();
+  pdfInput.value = '';
+  resumeTextarea.value = '';
+  uploadZone.classList.remove('loaded');
+  uploadFilename.textContent = '';
+});
+
+async function processPDF(file) {
+  uploadFilename.textContent = '⏳ Reading PDF...';
+  uploadZone.classList.add('loaded');
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = '';
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      fullText += content.items.map(item => item.str).join(' ') + '\n';
+    }
+
+    resumeTextarea.value = fullText.trim();
+    uploadFilename.textContent = `📄 ${file.name}`;
+  } catch (err) {
+    uploadZone.classList.remove('loaded');
+    resumeTextarea.placeholder = 'Could not read PDF. Please paste your resume text manually.';
+    console.error(err);
+  }
+}
+
+// =============================================
 //  EVENT LISTENERS
 // =============================================
 const screenBtn = document.getElementById('screenBtn');

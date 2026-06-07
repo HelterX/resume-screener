@@ -173,6 +173,88 @@ ul { list-style: none; }
 }
 
 /* =============================================
+   PDF UPLOAD
+   ============================================= */
+.upload-zone {
+  border: 2px dashed var(--gold-light);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--white);
+  position: relative;
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+  border-color: var(--gold);
+  background: rgba(201,169,110,0.04);
+}
+
+.upload-zone__content { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.upload-zone__loaded  { display: none; flex-direction: column; align-items: center; gap: 8px; }
+
+.upload-zone.loaded .upload-zone__content { display: none; }
+.upload-zone.loaded .upload-zone__loaded  { display: flex; }
+
+.upload-icon { font-size: 2rem; }
+
+.upload-text {
+  font-size: 0.88rem;
+  color: var(--ink-light);
+}
+
+.upload-link {
+  color: var(--gold);
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.upload-hint {
+  font-size: 0.75rem;
+  color: rgba(74,69,64,0.4);
+  letter-spacing: 0.05em;
+}
+
+.upload-filename {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.upload-remove {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: #dc2626;
+  background: none;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: opacity var(--transition);
+}
+.upload-remove:hover { opacity: 0.7; }
+
+.upload-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 10px;
+  color: rgba(74,69,64,0.35);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.upload-divider::before,
+.upload-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--cream-dark);
+}
+
+/* =============================================
    BUTTONS
    ============================================= */
 .action-row {

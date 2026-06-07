@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 
@@ -42,6 +43,21 @@
           <span class="label__num">02</span>
           Your Resume
         </label>
+        <!-- PDF Upload -->
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="pdfInput" accept=".pdf" hidden />
+          <div class="upload-zone__content" id="uploadContent">
+            <span class="upload-icon">📄</span>
+            <p class="upload-text">Drop your PDF here or <span class="upload-link">browse</span></p>
+            <p class="upload-hint">Supports .pdf files</p>
+          </div>
+          <div class="upload-zone__loaded" id="uploadLoaded">
+            <span class="upload-icon">✅</span>
+            <p class="upload-filename" id="uploadFilename"></p>
+            <button class="upload-remove" id="uploadRemove">✕ Remove</button>
+          </div>
+        </div>
+        <div class="upload-divider"><span>or paste manually</span></div>
         <textarea id="resume" class="textarea" placeholder="Paste your resume text here..."></textarea>
       </div>
 
