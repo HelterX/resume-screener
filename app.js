@@ -207,6 +207,10 @@ if (typeof pdfjsLib !== 'undefined') {
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
+document.addEventListener('DOMContentLoaded', init);
+
+function init() {
+
 const uploadZone     = document.getElementById('uploadZone');
 const pdfInput       = document.getElementById('pdfInput');
 const uploadFilename = document.getElementById('uploadFilename');
@@ -303,15 +307,15 @@ screenBtn.addEventListener('click', () => {
 });
 
 resetBtn.addEventListener('click', () => {
-  document.getElementById('jobDesc').value = '';
   document.getElementById('resume').value = '';
   document.getElementById('results').classList.remove('visible');
   document.getElementById('scoreNum').textContent = '0';
   document.getElementById('scoreCircle').style.strokeDashoffset = '326.7';
   document.querySelector('.score-card').classList.remove('glow-green', 'glow-gold', 'glow-red');
-  // Reset upload zone
   pdfInput.value = '';
   uploadZone.classList.remove('loaded');
   uploadFilename.textContent = '';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
+
+} // end init
