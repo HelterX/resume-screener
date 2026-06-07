@@ -2,94 +2,94 @@
 //  RESUME SCREENER — Core Logic
 // =============================================
 
-// Common words to ignore
-const STOP_WORDS = new Set([
-  'a','an','the','and','or','but','in','on','at','to','for','of','with',
-  'is','are','was','were','be','been','being','have','has','had','do','does',
-  'did','will','would','could','should','may','might','shall','can','need',
-  'we','you','they','he','she','it','i','my','your','our','their','its',
-  'this','that','these','those','as','by','from','up','about','into','through',
-  'than','more','also','both','each','few','more','most','other','some','such',
-  'no','not','only','same','so','than','too','very','just','any','all','each',
-  'who','which','what','where','when','how','if','then','there','here','work',
-  'working','including','etc','must','will','able','experience','years','year',
-  'team','company','business','new','good','strong','use','using','used','help',
-  'provide','support','ensure','within','across','key','make','well','great'
-]);
+const ACTION_VERBS = [
+  'built','developed','designed','created','launched','deployed','automated',
+  'optimized','managed','led','improved','increased','reduced','delivered',
+  'implemented','integrated','maintained','collaborated','achieved','generated',
+  'streamlined','coordinated','executed','produced','established','resolved'
+];
 
-// Weighted keyword categories
-const TECH_KEYWORDS = new Set([
-  'html','css','javascript','js','typescript','react','vue','angular','node',
-  'python','php','sql','mysql','mongodb','git','github','figma','shopify',
-  'liquid','tailwind','bootstrap','wordpress','webflow','api','rest','json',
-  'ai','automation','claude','openai','llm','agent','chatbot','seo','ui','ux',
-  'responsive','mobile','frontend','backend','fullstack','devops','aws','firebase',
-  'redux','nextjs','express','docker','linux','bash','excel','canva','photoshop'
-]);
+const TECH_KEYWORDS = [
+  'html','css','javascript','react','vue','angular','node','python','php',
+  'sql','mysql','mongodb','git','github','figma','shopify','liquid','tailwind',
+  'bootstrap','wordpress','api','rest','json','ai','automation','seo','ui','ux',
+  'responsive','mobile','frontend','backend','fullstack','aws','firebase','canva',
+  'typescript','nextjs','express','docker','linux','claude','openai','chatbot'
+];
+
+const RESUME_SECTIONS = [
+  { label: 'Contact Info',  keywords: ['email','phone','linkedin','github','portfolio','contact'] },
+  { label: 'Work Experience', keywords: ['experience','work','employment','position','role','job','company','intern'] },
+  { label: 'Skills',        keywords: ['skills','technologies','tools','proficient','expertise','competencies'] },
+  { label: 'Education',     keywords: ['education','degree','university','college','certification','course','diploma','graduate'] },
+  { label: 'Projects',      keywords: ['project','projects','built','developed','created','portfolio'] },
+];
 
 function tokenize(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s+#]/g, ' ')
-    .split(/\s+/)
-    .filter(w => w.length > 2 && !STOP_WORDS.has(w));
+  return text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 1);
 }
 
-function extractKeywords(text) {
-  const tokens = tokenize(text);
-  const freq = {};
-  tokens.forEach(t => freq[t] = (freq[t] || 0) + 1);
-
-  // Score: tech keywords get 3x weight, others 1x
-  return Object.entries(freq)
-    .map(([word, count]) => ({
-      word,
-      score: count * (TECH_KEYWORDS.has(word) ? 3 : 1)
-    }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 60)
-    .map(e => e.word);
-}
-
-function screenResume(jobDesc, resume) {
-  const jobKeywords = extractKeywords(jobDesc);
-  const resumeTokens = new Set(tokenize(resume));
-
+function analyzeResume(resumeText) {
+  const tokens = tokenize(resumeText);
+  const tokenSet = new Set(tokens);
+  let score = 0;
   const matched = [];
   const missing = [];
 
-  jobKeywords.forEach(kw => {
-    // Also check plural/partial matches
-    if (resumeTokens.has(kw) || [...resumeTokens].some(t => t.includes(kw) || kw.includes(t) && kw.length > 4)) {
-      matched.push(kw);
-    } else {
-      missing.push(kw);
-    }
+  // 1. Check sections (30 pts)
+  let sectionScore = 0;
+  RESUME_SECTIONS.forEach(section => {
+    const found = section.keywords.some(k => tokenSet.has(k));
+    if (found) { sectionScore += 6; matched.push(section.label); }
+    else        { missing.push(section.label); }
   });
+  score += sectionScore;
 
-  const total = matched.length + missing.length;
-  const score = total === 0 ? 0 : Math.round((matched.length / total) * 100);
+  // 2. Action verbs (25 pts)
+  const foundVerbs = ACTION_VERBS.filter(v => tokenSet.has(v));
+  const verbScore = Math.min(25, foundVerbs.length * 3);
+  score += verbScore;
+  if (foundVerbs.length > 0) matched.push(...foundVerbs.slice(0, 5));
+  else missing.push('action verbs (built, developed, optimized...)');
 
-  return { score, matched: matched.slice(0, 20), missing: missing.slice(0, 20) };
+  // 3. Tech keywords (30 pts)
+  const foundTech = TECH_KEYWORDS.filter(k => tokens.some(t => t.includes(k)));
+  const techScore = Math.min(30, foundTech.length * 3);
+  score += techScore;
+  if (foundTech.length > 0) matched.push(...foundTech.slice(0, 8));
+  const missingTech = TECH_KEYWORDS.filter(k => !tokens.some(t => t.includes(k))).slice(0, 6);
+  missing.push(...missingTech);
+
+  // 4. Quantifiable results (15 pts)
+  const hasNumbers = /\d+\s*(%|percent|x|projects?|clients?|years?|months?|users?)/i.test(resumeText);
+  if (hasNumbers) { score += 15; matched.push('quantified results'); }
+  else              missing.push('quantified results (e.g. "increased sales by 30%")');
+
+  score = Math.min(100, Math.round(score));
+  return {
+    score,
+    matched: [...new Set(matched)].slice(0, 20),
+    missing: [...new Set(missing)].slice(0, 20)
+  };
 }
 
 function getVerdict(score) {
   if (score >= 75) return {
-    title: 'Strong Match',
-    desc: 'Your resume aligns well with this job. You have most of the required skills and keywords. Apply with confidence.',
-    badge: 'Strong Match ✓',
+    title: 'Strong Resume',
+    desc: 'Your resume is well-structured and keyword-rich. You have strong action verbs, measurable results, and the right technical skills.',
+    badge: 'Strong ✓',
     badgeClass: 'badge--strong'
   };
   if (score >= 50) return {
-    title: 'Good Match',
-    desc: 'Your resume covers a solid portion of the job requirements. A few additions could significantly boost your chances.',
-    badge: 'Good Match',
+    title: 'Good Resume',
+    desc: 'Your resume has a solid foundation. A few targeted improvements to keywords and structure could significantly boost your chances.',
+    badge: 'Good',
     badgeClass: 'badge--good'
   };
   return {
-    title: 'Needs Work',
-    desc: 'Your resume is missing several key requirements for this role. Consider tailoring it to include more relevant keywords and skills.',
-    badge: 'Needs Improvement',
+    title: 'Needs Improvement',
+    desc: 'Your resume is missing key sections, action verbs, or technical keywords. The tips below will help you strengthen it.',
+    badge: 'Needs Work',
     badgeClass: 'badge--weak'
   };
 }
@@ -97,26 +97,25 @@ function getVerdict(score) {
 function generateTips(missing, score) {
   const tips = [];
 
-  if (missing.length > 0) {
-    const top = missing.slice(0, 5).join(', ');
-    tips.push(`Add these missing keywords naturally into your resume: <strong>${top}</strong>.`);
-  }
+  const missingSections = missing.filter(m => RESUME_SECTIONS.map(s => s.label).includes(m));
+  if (missingSections.length > 0)
+    tips.push(`Add missing sections: <strong>${missingSections.join(', ')}</strong>.`);
 
-  if (score < 75) {
-    tips.push('Tailor your resume for each job — copy exact phrases from the job description where you genuinely have that experience.');
-  }
+  if (missing.includes('quantified results (e.g. "increased sales by 30%")'))
+    tips.push('Add numbers to your experience — e.g. <strong>"Increased Shopify sales by 40%"</strong> or <strong>"Managed 10+ client accounts"</strong>.');
 
-  if (missing.some(k => TECH_KEYWORDS.has(k))) {
-    const missingTech = missing.filter(k => TECH_KEYWORDS.has(k)).slice(0, 4).join(', ');
-    tips.push(`The job requires technical skills you haven\'t mentioned: <strong>${missingTech}</strong>. Add them if you have experience.`);
-  }
+  if (missing.some(m => m.includes('action verb')))
+    tips.push('Start bullet points with strong action verbs: <strong>Built, Designed, Automated, Deployed, Optimized, Delivered</strong>.');
 
-  tips.push('Use strong action verbs: <strong>Built, Developed, Automated, Designed, Deployed, Optimized</strong>.');
-  tips.push('Quantify your results where possible — e.g. "Increased Shopify store sales by 30%" instead of "Improved store performance".');
+  const missingTech = missing.filter(m => TECH_KEYWORDS.includes(m)).slice(0, 5);
+  if (missingTech.length > 0)
+    tips.push(`Consider adding relevant tech skills you know: <strong>${missingTech.join(', ')}</strong>.`);
 
-  if (score >= 75) {
-    tips.push('Your resume looks great for this role! Double-check your contact info and make sure your LinkedIn is up to date.');
-  }
+  tips.push('Keep your resume to <strong>1 page</strong> if you have under 5 years of experience.');
+  tips.push('Add a <strong>portfolio or GitHub link</strong> so employers can see your actual work.');
+
+  if (score >= 75)
+    tips.push('Great resume! Tailor it slightly for each job by mirroring keywords from the job description.');
 
   return tips;
 }
@@ -277,11 +276,10 @@ const screenBtn = document.getElementById('screenBtn');
 const resetBtn = document.getElementById('resetBtn');
 
 screenBtn.addEventListener('click', () => {
-  const jobDesc = document.getElementById('jobDesc').value.trim();
   const resume = document.getElementById('resume').value.trim();
 
-  if (!jobDesc || !resume) {
-    screenBtn.textContent = 'Please fill both fields ✗';
+  if (!resume) {
+    screenBtn.textContent = 'Please add your resume first ✗';
     screenBtn.style.background = '#c0392b';
     setTimeout(() => {
       screenBtn.textContent = 'Screen My Resume ✦';
@@ -294,7 +292,7 @@ screenBtn.addEventListener('click', () => {
   screenBtn.disabled = true;
 
   setTimeout(() => {
-    const result = screenResume(jobDesc, resume);
+    const result = analyzeResume(resume);
     renderResults(result);
     screenBtn.textContent = 'Screen My Resume ✦';
     screenBtn.disabled = false;
